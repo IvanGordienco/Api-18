@@ -14,9 +14,10 @@ class DirectorsView(Resource):
         return res, 200
 
 
-@director_ns.route('/<int:did>')
+@director_ns.route('/<int:rid>')
 class DirectorView(Resource):
-    def get(self, did: int):
-        r = db.session.query(Director).get(did)
+    def get(self, rid):
+        r = db.session.query(Director).get(rid)
         sm_d = DirectorSchema().dump(r)
         return sm_d, 200
+
