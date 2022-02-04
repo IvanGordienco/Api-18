@@ -19,20 +19,20 @@ def create_app(config_object):
 def register_extensions(app):
     db.init_app(app)
     api = Api(app)
-    api.add_namespace(movie_ns)
-    api.add_namespace(genre_ns)
     api.add_namespace(director_ns)
-    create_data(app, db)
+    api.add_namespace(genre_ns)
+    api.add_namespace(movie_ns)
+    # create_data(app, db)
 
 
-def create_data(app, db):
-    with app.app_context():
-        db.create_all()
-
-        # создать несколько сущностей чтобы добавить их в БД
-        #
-        with db.session.begin():
-            db.session.add_all()
+# def create_data(app, db):
+#     with app.app_context():
+#         db.create_all()
+#
+#         # создать несколько сущностей чтобы добавить их в БД
+#         #
+#         with db.session.begin():
+#             db.session.add_all()
 
 
 app = create_app(Config())
