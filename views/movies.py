@@ -9,30 +9,40 @@ movie_ns = Namespace('movies')
 @movie_ns.route('/')
 class MoviesView(Resource):
     def get(self):
-        rs = db.session.query(Movie).all()
-        res = MovieSchema(many=True).dump(rs)
+        director = request.args.get("director_id")
+        genre = request.args.get("genre_id")
+        year = request.args.get("year")
+        t = db.session.query(Movie)
+        if director is not None:
+            t = t.filter(Movie.director_id == director)
+        if genre is not None:
+            t = t.filter(Movie.genre_id == genre)
+        if year is not None:
+            t = t.filter(Movie.year == year)
+        all_movies = t.all()
+        res = MovieSchema(many=True).dump(all_movies)
         return res, 200
 
     def post(self):
         req_json = request.json
-        new_movie = Movie(**req_json)
+        ent = Movie(**req_json)
 
-        with db.session.begin():
-            db.session.add(new_movie)
-        return "", 201
+        db.session.add(ent)
+        db.session.commit()
+        return "", 201, {"location": f"/movies/{ent.id}"}
 
 
-@movie_ns.route('/<int:mid>')
+@movie_ns.route('/<int:bid>')
 class MovieView(Resource):
-    def get(self, mid: int):
-        r = db.session.query(Movie).get(mid)
-        sm_d = MovieSchema().dump(r)
+    def get(self, bid):
+        b = db.session.query(Movie).get(bid)
+        sm_d = MovieSchema().dump(b)
         return sm_d, 200
 
-    def put(self, mid: int):
-        movie = Movie.query.get(mid)
+    def put(self, bid):
+        movie = db.session.query(Movie).get(bid)
         req_json = request.json
-        movie.title = req_json.get("name")
+        movie.title = req_json.get("title")
         movie.description = req_json.get("description")
         movie.trailer = req_json.get("trailer")
         movie.year = req_json.get("year")
@@ -43,13 +53,9 @@ class MovieView(Resource):
         db.session.commit()
         return "", 204
 
-    def delete(self, mid: int):
-        movie = Movie.query.get(mid)
-
-        if not movie:
-            return "", 404
+    def delete(self, bid):
+        movie = db.session.query(Movie).get(bid)
 
         db.session.delete(movie)
         db.session.commit()
-
         return "", 204
