@@ -19,5 +19,7 @@ class DirectorView(Resource):
     def get(self, rid):
         r = db.session.query(Director).get(rid)
         sm_d = DirectorSchema().dump(r)
+        if not r:
+            return f"product {rid} not found ", 404
         return sm_d, 200
 

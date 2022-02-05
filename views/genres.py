@@ -19,5 +19,6 @@ class GenreView(Resource):
     def get(self, rid):
         r = db.session.query(Genre).get(rid)
         sm_d = GenreSchema().dump(r)
+        if not r:
+            return f"product {rid} not found ", 404
         return sm_d, 200
-

@@ -37,6 +37,8 @@ class MovieView(Resource):
     def get(self, bid):
         b = db.session.query(Movie).get(bid)
         sm_d = MovieSchema().dump(b)
+        if not b:
+            return f"product {bid} not found ", 404
         return sm_d, 200
 
     def put(self, bid):
@@ -55,7 +57,8 @@ class MovieView(Resource):
 
     def delete(self, bid):
         movie = db.session.query(Movie).get(bid)
-
+        if not movie:
+            return f"product {bid} not found ", 404
         db.session.delete(movie)
         db.session.commit()
         return "", 204
